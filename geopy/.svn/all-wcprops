@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 28
+/svn/!svn/ver/75/trunk/geopy
+END
+location.py
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/34/trunk/geopy/location.py
+END
+format.py
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/34/trunk/geopy/format.py
+END
+geocoders_old.py
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/35/trunk/geopy/geocoders_old.py
+END
+point.py
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/34/trunk/geopy/point.py
+END
+distance.py
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/48/trunk/geopy/distance.py
+END
+util.py
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/53/trunk/geopy/util.py
+END
+geohash.py
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/34/trunk/geopy/geohash.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/60/trunk/geopy/__init__.py
+END
+units.py
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/34/trunk/geopy/units.py
+END

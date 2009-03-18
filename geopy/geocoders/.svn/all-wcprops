@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/75/trunk/geopy/geocoders
+END
+virtual_earth.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/35/trunk/geopy/geocoders/virtual_earth.py
+END
+base.py
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/svn/!svn/ver/35/trunk/geopy/geocoders/base.py
+END
+google.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/75/trunk/geopy/geocoders/google.py
+END
+dot_us.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/35/trunk/geopy/geocoders/dot_us.py
+END
+geonames.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/35/trunk/geopy/geocoders/geonames.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/69/trunk/geopy/geocoders/__init__.py
+END
+yahoo.py
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/35/trunk/geopy/geocoders/yahoo.py
+END
+wiki_gis.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/35/trunk/geopy/geocoders/wiki_gis.py
+END
+wiki_semantic.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/35/trunk/geopy/geocoders/wiki_semantic.py
+END

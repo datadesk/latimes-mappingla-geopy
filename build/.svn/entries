@@ -1,0 +1,34 @@
+8
+
+dir
+76
+http://geopy.googlecode.com/svn/trunk/build
+http://geopy.googlecode.com/svn
+
+
+
+2006-10-08T20:58:46.087572Z
+14
+exogen
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+535ce8a4-231d-0410-ac7f-15f3cd728b52
+
+lib
+dir
+
+bdist.linux-i686
+dir
+
