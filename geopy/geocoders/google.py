@@ -97,7 +97,7 @@ class Google(Geocoder):
             else:
                 latitude = longitude = None
                 _, (latitude, longitude) = self.geocode(location)
-            return (location, (latitude, longitude))
+            return (location, (latitude, longitude), location)
         
         if exactly_one:
             return parse_place(places[0])

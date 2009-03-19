@@ -22,7 +22,7 @@ import util
 # Now try some more exotic modules...
 
 try:
-    from BeautifulSoup import BeautifulSoup
+    from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 except ImportError:
     print "BeautifulSoup was not found. " \
           "Geocoders assuming malformed markup will not work."
@@ -328,7 +328,7 @@ class Google(WebGeocoder):
         return self.geocode_url(url, exactly_one)
 
     def geocode_url(self, url, exactly_one=True):
-        print "Fetching %s..." % url
+        #print "Fetching %s..." % url
         page = urlopen(url)
         
         dispatch = getattr(self, 'parse_' + self.output_format)
@@ -352,6 +352,7 @@ class Google(WebGeocoder):
         
         def parse_place(place):
             location = self._get_first_text(place, ['address', 'name']) or None
+            accuracy = BeautifulStoneSoup(place.toxml()).addressdetails['accuracy'] or None
             points = place.getElementsByTagName('Point')
             point = points and points[0] or None
             coords = self._get_first_text(point, 'coordinates') or None
@@ -360,7 +361,7 @@ class Google(WebGeocoder):
             else:
                 latitude = longitude = None
                 _, (latitude, longitude) = self.geocode(location)
-            return (location, (latitude, longitude))
+            return (location, (latitude, longitude), accuracy)
         
         if exactly_one:
             return parse_place(places[0])
