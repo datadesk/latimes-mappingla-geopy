@@ -277,7 +277,8 @@ class Google(WebGeocoder):
     """Geocoder using the Google Maps API."""
     
     def __init__(self, api_key=None, domain='maps.google.com',
-                 resource='maps/geo', format_string='%s', output_format='kml'):
+                 resource='maps/geo', format_string='%s', output_format='kml', 
+                 ):
         """Initialize a customized Google geocoder with location-specific
         address information and your Google Maps API key.
 
@@ -316,7 +317,13 @@ class Google(WebGeocoder):
         resource = self.resource.strip('/')
         return "http://%(domain)s/%(resource)s?%%s" % locals()
 
-    def geocode(self, string, exactly_one=True):
+    def geocode(self, string, exactly_one=True, return_accuracy=False, viewport_centroid=None, viewport_span=None):
+        """
+        ``viewport_centroid`` and ``viewport_span`` are tuples of x and y coordinates for
+        use in Google's viewport biasing, which is documented at the link below.
+
+        http://code.google.com/apis/maps/documentation/geocoding/#Viewports
+        """
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),
                   }
@@ -324,17 +331,22 @@ class Google(WebGeocoder):
             # An API key is only required for the HTTP geocoder.
             params['key'] = self.api_key
 
-        url = self.url % urlencode(params)
-        return self.geocode_url(url, exactly_one)
+        if viewport_centroid:
+            params['ll'] = '%s,%s' % (viewport_centroid[0], viewport_centroid[1])
+        if viewport_span:
+            params['spn'] = '%s,%s' % (viewport_span[0], viewport_span[1])
 
-    def geocode_url(self, url, exactly_one=True):
-        #print "Fetching %s..." % url
+        url = self.url % urlencode(params)
+        return self.geocode_url(url, exactly_one, return_accuracy)
+
+    def geocode_url(self, url, exactly_one=True, return_accuracy=False):
+        print "Fetching %s..." % url
         page = urlopen(url)
         
         dispatch = getattr(self, 'parse_' + self.output_format)
-        return dispatch(page, exactly_one)
+        return dispatch(page, exactly_one, return_accuracy)
 
-    def parse_xml(self, page, exactly_one=True):
+    def parse_xml(self, page, exactly_one=True, return_accuracy=False):
         """Parse a location name, latitude, and longitude from an XML response.
         """
         if not isinstance(page, basestring):
@@ -350,7 +362,7 @@ class Google(WebGeocoder):
             raise ValueError("Didn't find exactly one placemark! " \
                              "(Found %d.)" % len(places))
         
-        def parse_place(place):
+        def parse_place(place, return_accuracy=False):
             location = self._get_first_text(place, ['address', 'name']) or None
             accuracy = BeautifulStoneSoup(place.toxml()).addressdetails['accuracy'] or None
             points = place.getElementsByTagName('Point')
@@ -361,18 +373,21 @@ class Google(WebGeocoder):
             else:
                 latitude = longitude = None
                 _, (latitude, longitude) = self.geocode(location)
-            return (location, (latitude, longitude), accuracy)
+            if return_accuracy:
+                return (location, (latitude, longitude), accuracy)
+            else:
+                return (location, (latitude, longitude))
         
         if exactly_one:
-            return parse_place(places[0])
+            return parse_place(places[0], return_accuracy)
         else:
-            return (parse_place(place) for place in places)
+            return (parse_place(place, return_accuracy) for place in places)
 
     def parse_csv(self, page, exactly_one=True):
         raise NotImplementedError
 
-    def parse_kml(self, page, exactly_one=True):
-        return self.parse_xml(page, exactly_one)
+    def parse_kml(self, page, exactly_one=True, return_accuracy=False):
+        return self.parse_xml(page, exactly_one, return_accuracy)
 
     def parse_json(self, page, exactly_one=True):
         if not isinstance(page, basestring):
