@@ -2,9 +2,57 @@ h1. python-geopy
 
 This is my fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy.
 
-The idea is to modify it slightly tack on some functionality I'd like to add.
+The idea is to modify it slightly to tack on a few toys.
 
 h2. What I've tacked on so far
 
 * An option to return the accuracy score along with a Google KML result
 * An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results a frame you provide (ex. The San Fernando Valley) 
+
+h2. How it works
+
+*First fire up geopy and load the Google geocoder.*
+<pre>
+	<code>
+$ python
+>>> from geopy import geocoders
+>>> g = geocoders.Google(BENS_GOOGLE_API_KEY, format_string='%s, Los Angeles, Los Angeles, CA')
+	</code>
+</pre>
+
+*Now run an address like you typically would and see the usual output*
+<pre>
+	<code>
+>>> point_generator = g.geocode('1st and Main', exactly_one=False)
+>>> from pprint import pprint
+>>> pprint([i for i in point_generator])
+[(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
+  (34.052187000000004, -118.243425)),
+ (u'N Main St & W 1st St, Los Angeles, CA 90012, USA',
+  (34.052216000000001, -118.243396)),
+ (u'Main St & 1st Ave, Culver City, CA 90232, USA',
+  (34.019258000000001, -118.399407))]
+	</code>
+</pre>
+
+*Then run it again with my new option keyword argument, 'return_accuracy' and you'll see that the generator now includes the accuracy score at the tail end.*
+*You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy*
+<pre>
+	<code>
+>>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
+>>> pprint([i for i in point_generator])
+[(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
+  (34.052187000000004, -118.243425),
+  u'7'),
+ (u'N Main St & W 1st St, Los Angeles, CA 90012, USA',
+  (34.052216000000001, -118.243396),
+  u'7'),
+ (u'Main St & 1st Ave, Culver City, CA 90232, USA',
+  (34.019258000000001, -118.399407),
+  u'7')]
+	</code>
+</pre>
+
+*VIEWPORT BIAS GUIDE AND BETTER EXAMPLES TK*
+
+
