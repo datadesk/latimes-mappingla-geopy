@@ -21,9 +21,7 @@ $ python
 </pre>
 
 *Now run an address like you typically would and see the usual output*
-<pre>
-	<code>
->>> point_generator = g.geocode('1st and Main', exactly_one=False)
+<pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False)
 >>> from pprint import pprint
 >>> pprint([i for i in point_generator])
 [(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
@@ -31,15 +29,12 @@ $ python
  (u'N Main St & W 1st St, Los Angeles, CA 90012, USA',
   (34.052216000000001, -118.243396)),
  (u'Main St & 1st Ave, Culver City, CA 90232, USA',
-  (34.019258000000001, -118.399407))]
-	</code>
-</pre>
+  (34.019258000000001, -118.399407))]</code></pre>
 
-*Then run it again with my new option keyword argument, 'return_accuracy' and you'll see that the generator now includes the accuracy score at the tail end.*
+*Then run it again with my new option keyword argument, 'return_accuracy'. 
+*You'll see that the generator now includes the accuracy score at the tail end.*
 *You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy*
-<pre>
-	<code>
->>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
+<pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
 >>> pprint([i for i in point_generator])
 [(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
   (34.052187000000004, -118.243425),
@@ -49,9 +44,7 @@ $ python
   u'7'),
  (u'Main St & 1st Ave, Culver City, CA 90232, USA',
   (34.019258000000001, -118.399407),
-  u'7')]
-	</code>
-</pre>
+  u'7')]</code></pre>
 
 *VIEWPORT BIAS GUIDE AND BETTER EXAMPLES TK*
 
