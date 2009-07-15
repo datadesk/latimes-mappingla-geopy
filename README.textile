@@ -29,7 +29,7 @@ h2. How it works
 
 *Then run it again with my new optional keyword argument, 'return_accuracy'.*
 *You'll see that the generator now includes the accuracy score at the tail end.*
-*You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy*
+*You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy.*
 <pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
 >>> pprint([i for i in point_generator])
 [(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
