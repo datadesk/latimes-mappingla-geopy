@@ -27,7 +27,7 @@ h2. How it works
  (u'Main St & 1st Ave, Culver City, CA 90232, USA',
   (34.019258000000001, -118.399407))]</code></pre>
 
-*Then run it again with my new option keyword argument, 'return_accuracy'. 
+*Then run it again with my new optional keyword argument, 'return_accuracy'.*
 *You'll see that the generator now includes the accuracy score at the tail end.*
 *You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy*
 <pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
