@@ -12,13 +12,9 @@ h2. What I've tacked on so far
 h2. How it works
 
 *First fire up geopy and load the Google geocoder.*
-<pre>
-	<code>
-$ python
+<pre><code>$ python
 >>> from geopy import geocoders
->>> g = geocoders.Google(BENS_GOOGLE_API_KEY, format_string='%s, Los Angeles, Los Angeles, CA')
-	</code>
-</pre>
+>>> g = geocoders.Google(BENS_GOOGLE_API_KEY, format_string='%s, Los Angeles, Los Angeles, CA')</code></pre>
 
 *Now run an address like you typically would and see the usual output*
 <pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False)
