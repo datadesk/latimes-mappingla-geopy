@@ -1,4 +1,4 @@
-h1. python-geopy
+h1. latimes-geopy
 
 This is my fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy.
 
