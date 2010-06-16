@@ -11,6 +11,12 @@ from xml.parsers.expat import ExpatError
 from geopy.geocoders.base import Geocoder,GeocoderError,GeocoderResultError
 from geopy import Point, Location, util
 
+try:
+    from BeautifulSoup import BeautifulStoneSoup
+except ImportError:
+    util.logger.warn("BeautifulSoup was not found. ")
+
+
 class Google(Geocoder):
     """Geocoder using the Google Maps API."""
     
@@ -54,7 +60,23 @@ class Google(Geocoder):
         resource = self.resource.strip('/')
         return "http://%(domain)s/%(resource)s?%%s" % locals()
 
-    def geocode(self, string, exactly_one=True):
+    def geocode(self, string, exactly_one=True, return_accuracy=False,
+        viewport_centroid=None, viewport_span=None):
+        """
+        Hit the API and get the response from Google.
+
+        ``exactly_one`` will limit the search results to only one result.
+
+        ``return_accuracy`` will add Google's accuracy score to the result,
+        so you can tell at what level of precision in each match.
+
+        http://code.google.com/apis/maps/documentation/javascript/v2/reference.html#GGeoAddressAccuracy
+
+        ``viewport_centroid`` and ``viewport_span`` are tuples of
+        x and y coordinates for use in Google's viewport biasing.
+
+        http://code.google.com/apis/maps/documentation/geocoding/#Viewports
+        """
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),
                   }
@@ -62,17 +84,22 @@ class Google(Geocoder):
             # An API key is only required for the HTTP geocoder.
             params['key'] = self.api_key
 
-        url = self.url % urlencode(params)
-        return self.geocode_url(url, exactly_one)
+        if viewport_centroid:
+            params['ll'] = '%s,%s' % (viewport_centroid[0], viewport_centroid[1])
+        if viewport_span:
+            params['spn'] = '%s,%s' % (viewport_span[0], viewport_span[1])
 
-    def geocode_url(self, url, exactly_one=True):
+        url = self.url % urlencode(params)
+        return self.geocode_url(url, exactly_one, return_accuracy)
+
+    def geocode_url(self, url, exactly_one=True, return_accuracy=False):
         util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         
         dispatch = getattr(self, 'parse_' + self.output_format)
-        return dispatch(page, exactly_one)
+        return dispatch(page, exactly_one, return_accuracy)
 
-    def parse_xml(self, page, exactly_one=True):
+    def parse_xml(self, page, exactly_one=True, return_accuracy=False):
         """Parse a location name, latitude, and longitude from an XML response.
         """
         if not isinstance(page, basestring):
@@ -94,8 +121,9 @@ class Google(Geocoder):
             raise ValueError("Didn't find exactly one placemark! " \
                              "(Found %d.)" % len(places))
         
-        def parse_place(place):
+        def parse_place(place, return_accuracy=False):
             location = util.get_first_text(place, ['address', 'name']) or None
+            accuracy = BeautifulStoneSoup(place.toxml()).addressdetails['accuracy'] or None
             points = place.getElementsByTagName('Point')
             point = points and points[0] or None
             coords = util.get_first_text(point, 'coordinates') or None
@@ -104,18 +132,21 @@ class Google(Geocoder):
             else:
                 latitude = longitude = None
                 _, (latitude, longitude) = self.geocode(location)
-            return (location, (latitude, longitude))
-        
+            if return_accuracy:
+                return (location, (latitude, longitude), accuracy)
+            else:
+                return (location, (latitude, longitude))
+
         if exactly_one:
-            return parse_place(places[0])
+            return parse_place(places[0], return_accuracy)
         else:
-            return (parse_place(place) for place in places)
+            return (parse_place(place, return_accuracy) for place in places)
 
     def parse_csv(self, page, exactly_one=True):
         raise NotImplementedError
 
-    def parse_kml(self, page, exactly_one=True):
-        return self.parse_xml(page, exactly_one)
+    def parse_kml(self, page, exactly_one=True, return_accuracy=False):
+        return self.parse_xml(page, exactly_one, return_accuracy)
 
     def parse_json(self, page, exactly_one=True):
         if not isinstance(page, basestring):
@@ -195,11 +226,14 @@ class Google(Geocoder):
         elif status_code == 620:
             raise GTooManyQueriesError("The given key has gone over the requests limit in the 24 hour period or has submitted too many requests in too short a period of time.")
 
+
 class GBadKeyError(GeocoderError):
     pass
 
+
 class GQueryError(GeocoderResultError):
     pass
+
 
 class GTooManyQueriesError(GeocoderResultError):
     pass
