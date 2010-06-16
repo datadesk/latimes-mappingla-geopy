@@ -22,20 +22,15 @@ import util
 # Now try some more exotic modules...
 
 try:
-    from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
+    from BeautifulSoup import BeautifulSoup
 except ImportError:
-    print "BeautifulSoup was not found. " \
-          "Geocoders assuming malformed markup will not work."
+    util.logger.warn("BeautifulSoup was not found. " \
+          "Geocoders assuming malformed markup will not work.")
 
 try:
-    import simplejson
+    import json as simplejson
 except ImportError:
-    try:
-        from django.utils import simplejson
-    except ImportError:
-        print "simplejson was not found. " \
-              "Geocoders relying on JSON parsing will not work."
-
+    import simplejson
 
 class Geocoder(object):
     """Base class for all geocoders."""
@@ -120,7 +115,7 @@ class MediaWiki(WebGeocoder):
         return self.geocode_url(url)
 
     def geocode_url(self, url):
-        print "Fetching %s..." % url
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         name, (latitude, longitude) = self.parse_xhtml(page)
         return (name, (latitude, longitude))        
@@ -197,13 +192,13 @@ class SemanticMediaWiki(MediaWiki):
         if tried is None:
             tried = set()
 
-        print "Fetching %s..." % url
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         soup = BeautifulSoup(page)
         name, (latitude, longitude) = self.parse_xhtml(soup)
         if None in (name, latitude, longitude) or self.prefer_semantic:
             rdf_url = self.parse_rdf_link(soup)
-            print "Fetching %s..." % rdf_url
+            util.logger.debug("Fetching %s..." % rdf_url)
             page = urlopen(rdf_url)
             
             things, thing = self.parse_rdf(page)
@@ -277,8 +272,7 @@ class Google(WebGeocoder):
     """Geocoder using the Google Maps API."""
     
     def __init__(self, api_key=None, domain='maps.google.com',
-                 resource='maps/geo', format_string='%s', output_format='kml', 
-                 ):
+                 resource='maps/geo', format_string='%s', output_format='kml'):
         """Initialize a customized Google geocoder with location-specific
         address information and your Google Maps API key.
 
@@ -317,13 +311,7 @@ class Google(WebGeocoder):
         resource = self.resource.strip('/')
         return "http://%(domain)s/%(resource)s?%%s" % locals()
 
-    def geocode(self, string, exactly_one=True, return_accuracy=False, viewport_centroid=None, viewport_span=None):
-        """
-        ``viewport_centroid`` and ``viewport_span`` are tuples of x and y coordinates for
-        use in Google's viewport biasing, which is documented at the link below.
-
-        http://code.google.com/apis/maps/documentation/geocoding/#Viewports
-        """
+    def geocode(self, string, exactly_one=True):
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),
                   }
@@ -331,22 +319,17 @@ class Google(WebGeocoder):
             # An API key is only required for the HTTP geocoder.
             params['key'] = self.api_key
 
-        if viewport_centroid:
-            params['ll'] = '%s,%s' % (viewport_centroid[0], viewport_centroid[1])
-        if viewport_span:
-            params['spn'] = '%s,%s' % (viewport_span[0], viewport_span[1])
-
         url = self.url % urlencode(params)
-        return self.geocode_url(url, exactly_one, return_accuracy)
+        return self.geocode_url(url, exactly_one)
 
-    def geocode_url(self, url, exactly_one=True, return_accuracy=False):
-        print "Fetching %s..." % url
+    def geocode_url(self, url, exactly_one=True):
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         
         dispatch = getattr(self, 'parse_' + self.output_format)
-        return dispatch(page, exactly_one, return_accuracy)
+        return dispatch(page, exactly_one)
 
-    def parse_xml(self, page, exactly_one=True, return_accuracy=False):
+    def parse_xml(self, page, exactly_one=True):
         """Parse a location name, latitude, and longitude from an XML response.
         """
         if not isinstance(page, basestring):
@@ -362,9 +345,8 @@ class Google(WebGeocoder):
             raise ValueError("Didn't find exactly one placemark! " \
                              "(Found %d.)" % len(places))
         
-        def parse_place(place, return_accuracy=False):
+        def parse_place(place):
             location = self._get_first_text(place, ['address', 'name']) or None
-            accuracy = BeautifulStoneSoup(place.toxml()).addressdetails['accuracy'] or None
             points = place.getElementsByTagName('Point')
             point = points and points[0] or None
             coords = self._get_first_text(point, 'coordinates') or None
@@ -373,21 +355,18 @@ class Google(WebGeocoder):
             else:
                 latitude = longitude = None
                 _, (latitude, longitude) = self.geocode(location)
-            if return_accuracy:
-                return (location, (latitude, longitude), accuracy)
-            else:
-                return (location, (latitude, longitude))
+            return (location, (latitude, longitude))
         
         if exactly_one:
-            return parse_place(places[0], return_accuracy)
+            return parse_place(places[0])
         else:
-            return (parse_place(place, return_accuracy) for place in places)
+            return (parse_place(place) for place in places)
 
     def parse_csv(self, page, exactly_one=True):
         raise NotImplementedError
 
-    def parse_kml(self, page, exactly_one=True, return_accuracy=False):
-        return self.parse_xml(page, exactly_one, return_accuracy)
+    def parse_kml(self, page, exactly_one=True):
+        return self.parse_xml(page, exactly_one)
 
     def parse_json(self, page, exactly_one=True):
         if not isinstance(page, basestring):
@@ -482,7 +461,7 @@ class Yahoo(WebGeocoder):
         return self.geocode_url(url, exactly_one)
     
     def geocode_url(self, url, exactly_one=True):
-        print "Fetching %s..." % url
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         
         parse = getattr(self, 'parse_' + self.output_format)
@@ -666,7 +645,7 @@ class VirtualEarth(WebGeocoder):
         return self.geocode_url(url, exactly_one)
 
     def geocode_url(self, url, exactly_one=True):
-        print "Fetching %s..." % url
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         return self.parse_javascript(page, exactly_one)
 

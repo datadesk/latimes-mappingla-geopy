@@ -13,9 +13,16 @@ from geopy.distance import (Distance,
 EARTH_CIRCUMFERENCE = 2 * math.pi * EARTH_RADIUS
 NORTH_POLE = Point(90, 0)
 SOUTH_POLE = Point(-90, 0)
+FIJI = Point(-16.1333333, 180.0) # Vunikondi, Fiji
 
 
 class CommonDistanceComputationCases:
+    def test_zero_measure(self):
+        self.cls(
+            (40.753152999999998, -73.982275999999999),
+            (40.753152999999998, -73.982275999999999)
+        )
+
     def test_should_have_length_when_only_given_length(self):
         distance = 1
         assert self.cls(distance).kilometers == distance
@@ -25,6 +32,11 @@ class CommonDistanceComputationCases:
 
     def test_should_have_nonzero_distance_for_distinct_points(self):
         assert self.cls((0, 0), (0, 1)).kilometers > 0
+
+    def test_max_longitude(self):
+        distance = self.cls(kilometers=1.0)
+        destination = distance.destination(FIJI, 45)
+        assert_almost_equal(destination.longitude, -179.99338, 4)
 
     def test_should_compute_distance_for_trip_between_poles(self):
         distance = self.cls(SOUTH_POLE, NORTH_POLE)

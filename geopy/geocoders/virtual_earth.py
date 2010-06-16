@@ -1,11 +1,14 @@
 import re
 from urllib2 import urlopen
 from urllib import urlencode
-import simplejson
 from geopy.geocoders.base import Geocoder
 from geopy.point import Point
 from geopy.location import Location
 from geopy import util
+try:
+    import json as simplejson
+except ImportError:
+    import simplejson
 
 class VirtualEarth(Geocoder):
     """Geocoder using Microsoft's Windows Live Local web service, powered by
@@ -35,7 +38,7 @@ class VirtualEarth(Geocoder):
         return self.geocode_url(url, exactly_one)
 
     def geocode_url(self, url, exactly_one=True):
-        print "Fetching %s..." % url
+        util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
         return self.parse_javascript(page, exactly_one)
 
