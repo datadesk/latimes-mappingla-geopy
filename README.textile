@@ -13,8 +13,7 @@ h2. How it works
 >>> from geopy import geocoders
 >>> g = geocoders.Google(BENS_GOOGLE_API_KEY)</code></pre>
 
-*Now run an address like you typically would and see the usual output.*
-*Let's try the address of the Los Angeles Times.*
+*Now run an address like you typically would and see the usual output. Let's try the address of the Los Angeles Times.*
 <pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False)
 >>> from pprint import pprint
 >>> pprint(list(point_generator))
