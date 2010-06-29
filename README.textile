@@ -3,7 +3,7 @@ h1. latimes-geopy
 A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy. Modified, with a few new toys.
 
 *Includes:*
-* An option to return the accuracy score along with a Google KML result
+* An option to return and accuracy score along with the result
 * An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results a frame you provide (ex. The San Fernando Valley) 
 
 h2. How it works
