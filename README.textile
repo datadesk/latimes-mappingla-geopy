@@ -27,8 +27,7 @@ h2. How it works
 <pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False, return_accuracy=True)</code></pre>
 
 *You'll see that the generator now includes the accuracy score at the tail end. You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy. Eight is pretty good.*
-<pre><code>
->>> pprint(list(point_generator))
+<pre><code>>>> pprint(list(point_generator))
 [(u'202 W 1st St, Los Angeles, CA 90731, USA',
   (33.743286099999999, -118.28143780000001),
   u'8'),
