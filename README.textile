@@ -13,7 +13,7 @@ A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy, modif
 
 *Includes:*
 * An option to return an accuracy score along with the result
-* An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results a frame you provide (i.e. Downtown Los Angeles) 
+* An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results in a frame you provide (i.e. Downtown Los Angeles) 
 
 h2. How it works
 
