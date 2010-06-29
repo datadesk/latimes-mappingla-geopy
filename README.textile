@@ -9,7 +9,7 @@
                           MM        MM                       6'     dP                               
                         .JMML.    .JMML.                     Ybmmmd'                                 </code></pre>
 
-A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy. Modified, with a few new toys.
+A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy, modified, with a few new toys.
 
 *Includes:*
 * An option to return and accuracy score along with the result
