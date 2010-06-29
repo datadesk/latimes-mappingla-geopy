@@ -63,4 +63,4 @@ Now check this out. The viewport will limit our results to just the downtown add
   (34.052993000000001, -118.24482500000001),
   u'8')]</code></pre>
 
-If you're really enthuasiastic, check out "this dummy GeoDjango model":http://gist.github.com/456696 that calculates the viewport for you.
+If you're really enthusiastic, check out "this dummy GeoDjango model":http://gist.github.com/456696 that calculates the viewport for you.
