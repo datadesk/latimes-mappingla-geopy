@@ -22,7 +22,7 @@ h2. How it works
  (u'202 W 1st St, Los Angeles, CA 90012, USA',
   (34.052993000000001, -118.24482500000001))]</code></pre>
 
-*Unfortunately, we get two results in LA for the same address. WTF, right?*
+*Unfortunately, we get two results in LA for the same address.*
 *Let's use my new optional keyword argument, 'return_accuracy' so see how good they are.*
 <pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False, return_accuracy=True)</code></pre>
 
