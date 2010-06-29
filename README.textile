@@ -61,7 +61,8 @@ Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate
 from django.contrib.gis.geos import Point
 
 class ViewportExample(models.Model):
-  name = models.CharField(max_length=200, null=True, blank=True)\n multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
+  name = models.CharField(max_length=200, null=True, blank=True)
+  multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
   objects = models.GeoManager()
 
   def __unicode__(self):
