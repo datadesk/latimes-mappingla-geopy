@@ -42,7 +42,7 @@ h2. How it works
 *For this example, I used the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/*
 *You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.*
 <pre><code>centroid = (34.039020123166175, -118.24590404333648)
-span = (0.037236705899272908, 0.034925735835917911)</pre></code>
+span = (0.037236705899272908, 0.034925735835917911)</code></pre>
 
 *Now check this out. The viewport will limit our results to just the downtown address.*
 <pre><code>point_generator = g.geocode(
