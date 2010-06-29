@@ -70,7 +70,7 @@ class Google(Geocoder):
         ``viewport_centroid`` and ``viewport_span`` are tuples of
         x and y coordinates for use in Google's viewport biasing.
 
-        http://code.google.com/apis/maps/documentation/geocoding/#Viewports
+        http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports
         """
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),

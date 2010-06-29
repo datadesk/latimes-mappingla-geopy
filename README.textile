@@ -1,8 +1,8 @@
 h1. latimes-geopy
 
-This is my fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy.
+A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy.
 
-The idea is to modify it slightly to tack on a few toys.
+Modified, with a few new toys.
 
 h2. What I've tacked on so far
 
@@ -14,34 +14,101 @@ h2. How it works
 *First fire up geopy and load the Google geocoder.*
 <pre><code>$ python
 >>> from geopy import geocoders
->>> g = geocoders.Google(BENS_GOOGLE_API_KEY, format_string='%s, Los Angeles, Los Angeles, CA')</code></pre>
+>>> g = geocoders.Google(BENS_GOOGLE_API_KEY)</code></pre>
 
 *Now run an address like you typically would and see the usual output*
-<pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False)
+<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False)
 >>> from pprint import pprint
->>> pprint([i for i in point_generator])
-[(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
-  (34.052187000000004, -118.243425)),
- (u'N Main St & W 1st St, Los Angeles, CA 90012, USA',
-  (34.052216000000001, -118.243396)),
- (u'Main St & 1st Ave, Culver City, CA 90232, USA',
-  (34.019258000000001, -118.399407))]</code></pre>
+>>> pprint(list(point_generator))
+[(u'202 W 1st St, Los Angeles, CA 90731, USA',
+  (33.743286099999999, -118.28143780000001)),
+ (u'202 W 1st St, Los Angeles, CA 90012, USA',
+  (34.052993000000001, -118.24482500000001))]</code></pre>
 
-*Then run it again with my new optional keyword argument, 'return_accuracy'.*
+*Unfortunately, we get two results in LA for the same address. WTF, right?*
+*Let's use my new optional keyword argument, 'return_accuracy' so see how good they are.*
+<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False, return_accuracy=True)</code></pre>
+
 *You'll see that the generator now includes the accuracy score at the tail end.*
 *You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy.*
-<pre><code>>>> point_generator = g.geocode('1st and Main', exactly_one=False, return_accuracy=True)
->>> pprint([i for i in point_generator])
-[(u'S Main St & E 1st St, Los Angeles, CA 90012, USA',
-  (34.052187000000004, -118.243425),
-  u'7'),
- (u'N Main St & W 1st St, Los Angeles, CA 90012, USA',
-  (34.052216000000001, -118.243396),
-  u'7'),
- (u'Main St & 1st Ave, Culver City, CA 90232, USA',
-  (34.019258000000001, -118.399407),
-  u'7')]</code></pre>
+<pre><code>
+>>> pprint(list(point_generator))
+[(u'202 W 1st St, Los Angeles, CA 90731, USA',
+  (33.743286099999999, -118.28143780000001),
+  u'8'),
+ (u'202 W 1st St, Los Angeles, CA 90012, USA',
+  (34.052993000000001, -118.24482500000001),
+  u'8')]</code></pre>
 
-*VIEWPORT BIAS GUIDE AND BETTER EXAMPLES TK*
+*But they're both at the same high accuracy level. Why?*
+*Because that address occurs both in "Downtown L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/?q=202+W+2nd+St,+Los+Angeles,+CA+90012&lat=34.052015&lng=-118.245981&g=Google+Maps and in the long-ago annexed neighborhood "San Pedro":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/san-pedro/?q=202+W+2nd+St,+Los+Angeles,+CA+90731&lat=33.7423824&lng=-118.2815254&g=Google+Maps.
+*So how do we get them? Try adding a viewport to ask Google to limit results to a particular extent.*
+*The viewport is two things, the centroid (y,x) followed by the distance between the centroid and the extent corners (min, max) in decimal degrees.*
+*For this example, I'll use the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/*
+*You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.*
+<pre><code>centroid = (34.039020123166175, -118.24590404333648)
+span = (0.037236705899272908, 0.034925735835917911)
+point_generator = g.geocode(
+    '202 W. 1st St.',
+    exactly_one=False,
+    return_accuracy=True,
+    viewport_centroid=centroid,
+    viewport_span=span
+    )</code></pre>
+*Now check this out. The viewport will limit our results to just the downtown address.*
+pprint(list(point_generator))
+[(u'202 W 1st St, Los Angeles, CA 90012, USA',
+  (34.052993000000001, -118.24482500000001),
+  u'8')]</code></pre>
+
+h2. If you're really enthusiastic...
+
+*Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate a viewport bias on the fly.*
+<pre><code>from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
+
+
+class ViewportExample(models.Model):
+    """
+    A fake model for demostrating how to create a viewport bias with GeoDjango.
+    """
+    # Area
+    name = models.CharField(max_length=200, null=True, blank=True)
+    multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ('name',)
+
+    def get_viewport(self):
+        """
+        Returns a centroid and span that can be used to limit Google's
+        geocoding results.
+        """
+        # Drop out if there's no polygon
+        if not self.multipolygon:
+            return None
+
+        # Get its extent, which is a tuple of points representing 
+        # the corners of its bounding box
+        xmin, ymin, xmax, ymax = self.multipolygon.extent
+
+        # Get its centroid
+        x, y = self.multipolygon.centroid.tuple
+
+        # And measure the distance from the centroid to the extent 
+        # points in decimal degrees, which is what Google wants.
+        min_radius = Point(x, y).distance(Point(xmin, ymin))
+        max_radius = Point(x, y).distance(Point(xmax, ymax))
+
+        # Now pass it back
+        return {
+            'centroid': { 'y': y, 'x': x },
+            'span': { 'min': min_radius, 'max': max_radius }
+        }
+    viewport = property(get_viewport)</code></pre>
 
 
