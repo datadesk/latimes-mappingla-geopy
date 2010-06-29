@@ -57,9 +57,11 @@ Now check this out. The viewport will limit our results to just the downtown add
 h2. If you're really enthusiastic...
 
 Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate a viewport bias on the fly.
-<p>from django.contrib.gis.db import models<br />
-from django.contrib.gis.geos import Point</p>
-<p>class ViewportExample(models.Model):<br />
+<pre><code>from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
+
+class ViewportExample(models.Model):
+</pre></code>
   name = models.CharField(max_length=200, null=True, blank=True)<br/>
   multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)\n  objects = models.GeoManager()</p>\n\n  def <i>unicode</i>(self):\n    return self.name\n\n  class Meta:\n    ordering = ('name&#8217;,)\n\n  def get_viewport(self):\n    if not self.multipolygon:\n      return None\n    xmin, ymin, xmax, ymax = self.multipolygon.extent\n    x, y = self.multipolygon.centroid.tuple\n    min_radius = Point(x, y).distance(Point(xmin, ymin))\n    max_radius = Point(x, y).distance(Point(xmax, ymax))\n    return {\n      'centroid&#8217;: { 'y&#8217;: y, 'x&#8217;: x },\n      'span&#8217;: { 'min&#8217;: min_radius, 'max&#8217;: max_radius }\n    }\n  viewport = property(get_viewport)
 
