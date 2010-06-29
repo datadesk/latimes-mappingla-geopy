@@ -60,29 +60,28 @@ Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate
 <pre><code>from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
-
 class ViewportExample(models.Model):
-	name = models.CharField(max_length=200, null=True, blank=True)
-	multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
-	objects = models.GeoManager()
+  name = models.CharField(max_length=200, null=True, blank=True)
+  multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
+  objects = models.GeoManager()
 
-	def __unicode__(self):
-		return self.name
-	
-	class Meta:
-		ordering = ('name',)
+  def __unicode__(self):
+    return self.name
+  
+  class Meta:
+    ordering = ('name',)
 
-	def get_viewport(self):
-		if not self.multipolygon:
-			return None
-		xmin, ymin, xmax, ymax = self.multipolygon.extent
-		x, y = self.multipolygon.centroid.tuple
-		min_radius = Point(x, y).distance(Point(xmin, ymin))
-		max_radius = Point(x, y).distance(Point(xmax, ymax))
-		return {
-			'centroid': { 'y': y, 'x': x },
-			'span': { 'min': min_radius, 'max': max_radius }
-		}
-	viewport = property(get_viewport)</code></pre>
+  def get_viewport(self):
+    if not self.multipolygon:
+      return None
+    xmin, ymin, xmax, ymax = self.multipolygon.extent
+    x, y = self.multipolygon.centroid.tuple
+    min_radius = Point(x, y).distance(Point(xmin, ymin))
+    max_radius = Point(x, y).distance(Point(xmax, ymax))
+    return {
+      'centroid': { 'y': y, 'x': x },
+      'span': { 'min': min_radius, 'max': max_radius }
+    }
+  viewport = property(get_viewport)</code></pre>
 
 
