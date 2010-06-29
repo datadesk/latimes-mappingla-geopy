@@ -1,8 +1,6 @@
 h1. latimes-geopy
 
-A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy.
-
-Modified, with a few new toys.
+A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy. Modified, with a few new toys.
 
 h2. What I've tacked on so far
 
