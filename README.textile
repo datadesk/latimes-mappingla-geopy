@@ -8,12 +8,12 @@ A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy. Modif
 
 h2. How it works
 
-*First fire up geopy and load the Google geocoder.*
+First fire up geopy and load the Google geocoder like you normally would.
 <pre><code>$ python
 >>> from geopy import geocoders
 >>> g = geocoders.Google(BENS_GOOGLE_API_KEY)</code></pre>
 
-*Now run an address like you typically would and see the usual output. Let's try the address of the Los Angeles Times.*
+Now run an address like you typically would and see the usual output. Let's try the address of the Los Angeles Times.
 <pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False)
 >>> from pprint import pprint
 >>> pprint(list(point_generator))
@@ -22,8 +22,7 @@ h2. How it works
  (u'202 W 1st St, Los Angeles, CA 90012, USA',
   (34.052993000000001, -118.24482500000001))]</code></pre>
 
-*Unfortunately, we get two results in LA for the same address.*
-*Let's use my new optional keyword argument, 'return_accuracy' so see how good they are.*
+Unfortunately, we get two results in LA for the same address. Let's use my new optional keyword argument, 'return_accuracy' so see how good they are.
 <pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False, return_accuracy=True)</code></pre>
 
 You'll see that the generator now includes the accuracy score at the tail end. You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy. Eight is pretty good.
@@ -57,7 +56,7 @@ pprint(list(point_generator))
 
 h2. If you're really enthusiastic...
 
-*Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate a viewport bias on the fly.*
+Here's a fake "GeoDjango":http://geodjango.org model that shows how to calculate a viewport bias on the fly.
 <pre><code>from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
