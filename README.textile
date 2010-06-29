@@ -43,12 +43,12 @@ span = (0.037236705899272908, 0.034925735835917911)</code></pre>
 
 Now check this out. The viewport will limit our results to just the downtown address. One trick is to remove the city designation here, as it can just muddle things up.
 <pre><code>point_generator = g.geocode(
-	'202 W. 1st St.',
-	exactly_one=False,
-	return_accuracy=True,
-	viewport_centroid=centroid,
-	viewport_span=span
-	)
+  '202 W. 1st St.',
+  exactly_one=False,
+  return_accuracy=True,
+  viewport_centroid=centroid,
+  viewport_span=span
+  )
 pprint(list(point_generator))
 [(u'202 W 1st St, Los Angeles, CA 90012, USA',
   (34.052993000000001, -118.24482500000001),
@@ -62,10 +62,6 @@ from django.contrib.gis.geos import Point
 
 
 class ViewportExample(models.Model):
-	"""
-	A fake model for demostrating how to create a viewport bias with GeoDjango.
-	"""
-	# Area
 	name = models.CharField(max_length=200, null=True, blank=True)
 	multipolygon = models.MultiPolygonField(srid=2229, null=True, blank=True)
 	objects = models.GeoManager()
@@ -77,27 +73,12 @@ class ViewportExample(models.Model):
 		ordering = ('name',)
 
 	def get_viewport(self):
-		"""
-		Returns a centroid and span that can be used to limit Google's
-		geocoding results.
-		"""
-		# Drop out if there's no polygon
 		if not self.multipolygon:
 			return None
-
-		# Get its extent, which is a tuple of points representing 
-		# the corners of its bounding box
 		xmin, ymin, xmax, ymax = self.multipolygon.extent
-
-		# Get its centroid
 		x, y = self.multipolygon.centroid.tuple
-
-		# And measure the distance from the centroid to the extent 
-		# points in decimal degrees, which is what Google wants.
 		min_radius = Point(x, y).distance(Point(xmin, ymin))
 		max_radius = Point(x, y).distance(Point(xmax, ymax))
-
-		# Now pass it back
 		return {
 			'centroid': { 'y': y, 'x': x },
 			'span': { 'min': min_radius, 'max': max_radius }
