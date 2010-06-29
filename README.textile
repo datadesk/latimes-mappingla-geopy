@@ -38,9 +38,8 @@ h2. How it works
 *But they're both at the same high accuracy level. Why? Because that address occurs both in "Downtown L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/?q=202+W+2nd+St,+Los+Angeles,+CA+90012&lat=34.052015&lng=-118.245981&g=Google+Maps and in the long-ago annexed neighborhood of "San Pedro":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/san-pedro/?q=202+W+2nd+St,+Los+Angeles,+CA+90731&lat=33.7423824&lng=-118.2815254&g=Google+Maps.*
 
 *So how do we get them? Try adding a viewport to ask Google to limit results to a particular extent. The viewport is two things, the centroid (y,x) followed by the distance between the centroid and the extent corners (min, max) in decimal degrees.*
+*For this example, I used the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/ You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.*
 
-*For this example, I used the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/*
-*You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.*
 <pre><code>centroid = (34.039020123166175, -118.24590404333648)
 span = (0.037236705899272908, 0.034925735835917911)</code></pre>
 
