@@ -1,10 +1,13 @@
-<pre><code> '/¯¯¯¯|  |¯¯¯¯\‚        '|\¯¯¯\  °    |¯¯¯¯|\¯¯¯¯\‘    |¯¯¯¯|\¯¯¯¯\‘   |\¯¯¯\‚   '/¯¯¯¯|   /¯¯¯¯|   '/¯¯¯/|¯¯¯|'‚               |\¯¯¯\‘                '|\¯¯¯\  °  
- |        '\/         |‚  '/¯¯¯/\     \      |       | |       | °  |       | |       | ° | |     |'   |        '\ '|       /|‘  |    °| |___|'‚               | |     | '          '/¯¯¯/\     \    
- |'\     '|\   /|     /'|'‚ |     '|_|    °|'‚    |       |/____/|    |       |/____/|  °'\|     |'   |'\     |\  \|      '|''|° |    °| |    °|'‚              '°\|     |___¸'/|   |     '|_|    °|'‚  
- | '|   °'| '\/ '|    '|°|'‚ |     '|¯|    °|'‚    |       |      °| |    |       |      °| |   '°|     |'   | '|   °|  \       °|/   |    °|'\¯¯¯\'‚               '°|             '|   |     '|¯|    °|'‚  
- ''/___'\  | /___'\/'  |\___\_\___\‚   |____|____'|/'    |____|____'|/'    '|\__¸'\'  ''/___|\ /____¸|°   |\___\|___|                 /________|   |\___\_\___\‚ 
- '|       |'\|/|       |   | |     |  |      |   |       |       ‘      |       |       ‘      '| |     |  '|      | '\|        |    | |     ||     |               '°|              '|   | |     |  |      | 
- '|____|  °|____|  °'\|___|'°|__¸¸'|   |____|‘             |____|‘             °\|__¸'|  '|__¸¸'|  '|____''|   '°\|__¸'||__¸'|               '°|________'|  °'\|___|'°|__¸¸'| </code></pre>
+<pre><code>                                              ,,                                          
+`7MMM.     ,MMF'                              db                           `7MMF'            db      
+  MMMb    dPMM                                                               MM             ;MM:     
+  M YM   ,M MM   ,6"Yb. `7MMpdMAo.`7MMpdMAo.`7MM  `7MMpMMMb.  .P"Ybmmm       MM            ,V^MM.    
+  M  Mb  M' MM  8)   MM   MM   `Wb  MM   `Wb  MM    MM    MM :MI  I8         MM           ,M  `MM    
+  M  YM.P'  MM   ,pm9MM   MM    M8  MM    M8  MM    MM    MM  WmmmP"         MM      ,    AbmmmqMA   
+  M  `YM'   MM  8M   MM   MM   ,AP  MM   ,AP  MM    MM    MM 8M              MM     ,M   A'     VML  
+.JML. `'  .JMML.`Moo9^Yo. MMbmmd'   MMbmmd' .JMML..JMML  JMML.YMMMMMb      .JMMmmmmMMM .AMA.   .AMMA.
+                          MM        MM                       6'     dP                               
+                        .JMML.    .JMML.                     Ybmmmd'                                 </code></pre>
 
 A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy. Modified, with a few new toys.
 
