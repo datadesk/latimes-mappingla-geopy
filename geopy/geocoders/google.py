@@ -11,11 +11,6 @@ from xml.parsers.expat import ExpatError
 from geopy.geocoders.base import Geocoder,GeocoderError,GeocoderResultError
 from geopy import Point, Location, util
 
-try:
-    from BeautifulSoup import BeautifulStoneSoup
-except ImportError:
-    util.logger.warn("BeautifulSoup was not found. ")
-
 
 class Google(Geocoder):
     """Geocoder using the Google Maps API."""
@@ -85,9 +80,10 @@ class Google(Geocoder):
             params['key'] = self.api_key
 
         if viewport_centroid:
-            params['ll'] = '%s,%s' % (viewport_centroid[0], viewport_centroid[1])
+            params['ll'] = ",".join(map(str, viewport_centroid))
+
         if viewport_span:
-            params['spn'] = '%s,%s' % (viewport_span[0], viewport_span[1])
+            params['spn'] = ",".join(map(str, viewport_span))
 
         url = self.url % urlencode(params)
         return self.geocode_url(url, exactly_one, return_accuracy)
@@ -123,7 +119,8 @@ class Google(Geocoder):
         
         def parse_place(place, return_accuracy=False):
             location = util.get_first_text(place, ['address', 'name']) or None
-            accuracy = BeautifulStoneSoup(place.toxml()).addressdetails['accuracy'] or None
+            addressdetails = place.getElementsByTagName("AddressDetails")[0]
+            accuracy = addressdetails.attributes['Accuracy'].value
             points = place.getElementsByTagName('Point')
             point = points and points[0] or None
             coords = util.get_first_text(point, 'coordinates') or None

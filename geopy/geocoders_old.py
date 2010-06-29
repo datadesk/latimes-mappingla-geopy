@@ -327,9 +327,9 @@ class Google(WebGeocoder):
             params['key'] = self.api_key
 
         if viewport_centroid:
-            params['ll'] = '%s,%s' % (viewport_centroid[0], viewport_centroid[1])
+            params['ll'] = u'%s,%s' % (viewport_centroid[0], viewport_centroid[1])
         if viewport_span:
-            params['spn'] = '%s,%s' % (viewport_span[0], viewport_span[1])
+            params['spn'] = u'%s,%s' % (viewport_span[0], viewport_span[1])
 
         url = self.url % urlencode(params)
         return self.geocode_url(url, exactly_one, return_accuracy)
