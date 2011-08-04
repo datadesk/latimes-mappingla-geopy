@@ -56,7 +56,7 @@ class Google(Geocoder):
         return "http://%(domain)s/%(resource)s?%%s" % locals()
 
     def geocode(self, string, exactly_one=True, return_accuracy=False,
-        viewport_centroid=None, viewport_span=None):
+        south_west_bounds=None, north_east_bounds=None):
         """
         Hit the API and get the response from Google.
 
@@ -67,10 +67,11 @@ class Google(Geocoder):
 
         http://code.google.com/apis/maps/documentation/javascript/v2/reference.html#GGeoAddressAccuracy
 
-        ``viewport_centroid`` and ``viewport_span`` are tuples of
-        x and y coordinates for use in Google's viewport biasing.
+        ``south_west_bounds`` and ``north_east_bounds`` are tuples of
+		x and y coordinates for use in the Google Maps API V3 version of
+		viewport biasing.
 
-        http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports
+		http://code.google.com/apis/maps/documentation/geocoding/#Viewports
         """
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),
@@ -79,19 +80,21 @@ class Google(Geocoder):
             # An API key is only required for the HTTP geocoder.
             params['key'] = self.api_key
 
-        if viewport_centroid:
-            params['ll'] = ",".join(map(str, viewport_centroid))
-
-        if viewport_span:
-            params['spn'] = ",".join(map(str, viewport_span))
-
         url = self.url % urlencode(params)
+
+        if south_west_bounds:
+            url = url+ "&bounds=" + south_west_bounds[0] + "," + south_west_bounds[1]
+            if north_east_bounds:
+                url = url+ "|" + north_east_bounds[0] + "," +north_east_bounds[1]
+            else:
+                raise ValueError("Need both south_west and north_east bounds")
+
         return self.geocode_url(url, exactly_one, return_accuracy)
 
     def geocode_url(self, url, exactly_one=True, return_accuracy=False):
         util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
-        
+
         dispatch = getattr(self, 'parse_' + self.output_format)
         return dispatch(page, exactly_one, return_accuracy)
 
