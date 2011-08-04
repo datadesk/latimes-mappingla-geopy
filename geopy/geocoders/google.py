@@ -83,9 +83,9 @@ class Google(Geocoder):
         url = self.url % urlencode(params)
 
         if south_west_bounds:
-            url = url+ "&bounds=" + south_west_bounds[0] + "," + south_west_bounds[1]
+            url = url + "&bounds=%s,%s" % (south_west_bounds[0], south_west_bounds[1])
             if north_east_bounds:
-                url = url+ "|" + north_east_bounds[0] + "," +north_east_bounds[1]
+                url = url+ "|%s,%s" % (north_east_bounds[0], north_east_bounds[1])
             else:
                 raise ValueError("Need both south_west and north_east bounds")
 
