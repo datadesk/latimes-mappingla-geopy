@@ -13,7 +13,6 @@ A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy, modif
 
 *Includes:*
 * An option to return an accuracy score along with the result
-* An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results in a frame you provide (i.e. Downtown Los Angeles) 
 
 h2. How it works
 
@@ -44,23 +43,3 @@ You'll see that the generator now includes the accuracy score at the tail end. Y
   u'8')]</code></pre>
 
 But they're both at the same high accuracy level. Why? Because that address occurs both in "Downtown L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/?q=202+W+2nd+St,+Los+Angeles,+CA+90012&lat=34.052015&lng=-118.245981&g=Google+Maps and in the long-ago annexed neighborhood of "San Pedro":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/san-pedro/?q=202+W+2nd+St,+Los+Angeles,+CA+90731&lat=33.7423824&lng=-118.2815254&g=Google+Maps.
-
-So, let's say we know the general area to look, but don't have a zipcode to search with. How could we zero in on the right address? Try adding a viewport to ask Google to limit results to a particular extent. The viewport is two things, the centroid (y,x) followed by the distance between the centroid and the extent corners (min, max) in decimal degrees. For this example, I used the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/ You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.
-
-<pre><code>>>> centroid = (34.039020123166175, -118.24590404333648)
->>> span = (0.037236705899272908, 0.034925735835917911)</code></pre>
-
-Now check this out. The viewport will limit our results to just the downtown address. One trick is to remove the city designation here, as it can just muddle things up.
-<pre><code>>>> point_generator = g.geocode(
-  '202 W. 1st St.',
-  exactly_one=False,
-  return_accuracy=True,
-  viewport_centroid=centroid,
-  viewport_span=span
-  )
->>> pprint(list(point_generator))
-[(u'202 W 1st St, Los Angeles, CA 90012, USA',
-  (34.052993000000001, -118.24482500000001),
-  u'8')]</code></pre>
-
-If you're really enthusiastic, check out "this dummy GeoDjango model":http://gist.github.com/456696 that calculates the viewport for you.

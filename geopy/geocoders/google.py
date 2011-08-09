@@ -66,20 +66,6 @@ class Google(Geocoder):
         so you can tell at what level of precision in each match.
 
         http://code.google.com/apis/maps/documentation/javascript/v2/reference.html#GGeoAddressAccuracy
-
-        ``bounding box`` should be a pairs of tuples that contains, each
-        containing a longitude and latitude pair or use in the Google Maps API V3 version of
-        viewport biasing. The first tuple should be the southwest corner and
-        the second should be the northeast corner.
-        
-        Google's example, creating a box around the San Fernando Valley, would be
-        submitted as follows:
-        
-            bounding_box=((34.172684,-118.604794), (34.236144,-118.500938))
-        
-        More information about viewport biasing is here:
-        
-            http://code.google.com/apis/maps/documentation/geocoding/#Viewports
         """
         params = {'q': self.format_string % string,
                   'output': self.output_format.lower(),
@@ -90,17 +76,6 @@ class Google(Geocoder):
         
         # Add parameters to URL
         url = self.url % urlencode(params)
-        
-        # If the user has submitted a bounding box for viewport biasing...
-        if bounding_box:
-            # .. make sure it's decent...
-            if len(bounding_box) != 2:
-                raise ValueError("You have submitted a bad bounding box.")
-            # ... then tack it on the end.
-            url += "&bounds=%s,%s" % (bounding_box[0][0], bounding_box[1][0])
-            url += "|%s,%s" % (bounding_box[1][0], bounding_box[1][1])
-        # Pass out the finished url
-        print url
         return self.geocode_url(url, exactly_one, return_accuracy)
 
     def geocode_url(self, url, exactly_one=True, return_accuracy=False):
