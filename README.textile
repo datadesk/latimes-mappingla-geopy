@@ -9,58 +9,45 @@
                           MM        MM                       6'     dP                               
                         .JMML.    .JMML.                     Ybmmmd'                                 </code></pre>
 
-A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy, modified, with a few new toys.
+A fork of the geocoding library "geopy":http://pypi.python.org/pypi/geopy, modified to use version three of Google's geocoder API.
 
-*Includes:*
-* An option to return an accuracy score along with the result
-* An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results in a frame you provide (i.e. Downtown Los Angeles) 
+h2. Features
+
+* No longer requires an API key
+* An option to return the address types of results, "as defined by Google":http://code.google.com/apis/maps/documentation/geocoding/#Types.
+* An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results in a frame you provide (i.e. The San Fernando Valley) 
+* An option to bias realizes to a particular region of the world, "according to Google's standards":http://code.google.com/apis/maps/documentation/geocoding/#RegionCodes.
 
 h2. How it works
 
 First fire up geopy and load the Google geocoder like you normally would.
 <pre><code>$ python
 >>> from geopy import geocoders
->>> g = geocoders.Google(BENS_GOOGLE_API_KEY)</code></pre>
+>>> g = geocoders.Google()</code></pre>
 
 Now run an address like you typically would and see the usual output. Let's try the address of the Los Angeles Times.
-<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False)
+<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles', exactly_one=False)
 >>> from pprint import pprint
 >>> pprint(list(point_generator))
-[(u'202 W 1st St, Los Angeles, CA 90731, USA',
-  (33.743286099999999, -118.28143780000001)),
- (u'202 W 1st St, Los Angeles, CA 90012, USA',
-  (34.052993000000001, -118.24482500000001))]</code></pre>
+[(u'202 W 1st St, Los Angeles, CA 90731, USA', (33.7432855, -118.2814378))]</code></pre>
 
-Unfortunately, we get two results in LA for the same address. Let's use my new optional keyword argument, 'return_accuracy' so see how good they are.
-<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles, Los Angeles, CA', exactly_one=False, return_accuracy=True)</code></pre>
-
-You'll see that the generator now includes the accuracy score at the tail end. You can decode the number "here":http://code.google.com/apis/maps/documentation/geocoding/#GeocodingAccuracy. Eight is pretty good.
-<pre><code>>>> pprint(list(point_generator))
-[(u'202 W 1st St, Los Angeles, CA 90731, USA',
-  (33.743286099999999, -118.28143780000001),
-  u'8'),
- (u'202 W 1st St, Los Angeles, CA 90012, USA',
-  (34.052993000000001, -118.24482500000001),
-  u'8')]</code></pre>
-
-But they're both at the same high accuracy level. Why? Because that address occurs both in "Downtown L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/?q=202+W+2nd+St,+Los+Angeles,+CA+90012&lat=34.052015&lng=-118.245981&g=Google+Maps and in the long-ago annexed neighborhood of "San Pedro":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/san-pedro/?q=202+W+2nd+St,+Los+Angeles,+CA+90731&lat=33.7423824&lng=-118.2815254&g=Google+Maps.
-
-So, let's say we know the general area to look, but don't have a zipcode to search with. How could we zero in on the right address? Try adding a viewport to ask Google to limit results to a particular extent. The viewport is two things, the centroid (y,x) followed by the distance between the centroid and the extent corners (min, max) in decimal degrees. For this example, I used the viewport of the Downtown neighborhood defined by "Mapping L.A.":http://projects.latimes.com/mapping-la/neighborhoods/neighborhood/downtown/ You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/v2/#Viewports.
-
-<pre><code>>>> centroid = (34.039020123166175, -118.24590404333648)
->>> span = (0.037236705899272908, 0.034925735835917911)</code></pre>
-
-Now check this out. The viewport will limit our results to just the downtown address. One trick is to remove the city designation here, as it can just muddle things up.
-<pre><code>>>> point_generator = g.geocode(
-  '202 W. 1st St.',
-  exactly_one=False,
-  return_accuracy=True,
-  viewport_centroid=centroid,
-  viewport_span=span
-  )
+You can use the new optional keyword argument, 'return_types' so see how precise they are.
+<pre><code>>>> point_generator = g.geocode('202 W. 1st St., Los Angeles', exactly_one=False, return_types=True)
 >>> pprint(list(point_generator))
-[(u'202 W 1st St, Los Angeles, CA 90012, USA',
-  (34.052993000000001, -118.24482500000001),
-  u'8')]</code></pre>
+[(u'202 W 1st St, Los Angeles, CA 90731, USA',
+  (33.7432855, -118.2814378),
+  [u'street_address'])]</code></pre>
+A complete list of address types can be found "here":http://code.google.com/apis/maps/documentation/geocoding/#Types.
 
-If you're really enthusiastic, check out "this dummy GeoDjango model":http://gist.github.com/456696 that calculates the viewport for you.
+So, let's say we know the general area to look, but don't have a zipcode to search with. How could we zero in on the right address? Try adding a viewport to ask Google to limit results to a particular extent. The viewport is two things, the southeast and northwest corners (y,x) of a bounding box surrounding the area in decimal degrees. You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/#Viewports.
+
+Now check this out. The viewport will limit our results to just the San Fernando Valley, so the Winnetka area there will be returned, rather than the city of that name in Illinois.
+<pre><code>>>> point_generator = g.geocode("Winnetka", bounding_box=((34.172684,-118.604794), (34.236144,-118.500938)))
+>>> pprint(list(point_generator))
+[u'Winnetka, Los Angeles, CA, USA', (34.2083333, -118.5752778)]</code></pre>
+
+You can do a similar kind of biasing by providing a region of the world to look for results in. The following example will bias results to Spain. A list of all region codes can be found "here":http://code.google.com/apis/maps/documentation/geocoding/#RegionCodes.
+
+<pre><code>>>> point_generator = g.geocode("Toledo", region='ES')
+>>> pprint(list(point_generator))
+[u'Toledo, Spain', (39.8567775, -4.0244759)]</code></pre>

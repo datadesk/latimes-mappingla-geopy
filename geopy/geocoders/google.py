@@ -15,8 +15,8 @@ from geopy import Point, Location, util
 class Google(Geocoder):
     """Geocoder using the Google Maps API."""
     
-    def __init__(self, api_key=None, domain='maps.google.com',
-                 resource='maps/geo', format_string='%s', output_format='kml'):
+    def __init__(self, domain='maps.googleapis.com', resource='maps/api/geocode',
+        format_string='%s', output_format='json', sensor='false'):
         """Initialize a customized Google geocoder with location-specific
         address information and your Google Maps API key.
 
@@ -43,20 +43,23 @@ class Google(Geocoder):
         JavaScript, which could change. However, it currently returns the best
         results for restricted geocoder areas such as the UK.
         """
-        self.api_key = api_key
         self.domain = domain
         self.resource = resource
         self.format_string = format_string
         self.output_format = output_format
-
+        self.sensor = sensor
+    
     @property
     def url(self):
         domain = self.domain.strip('/')
-        resource = self.resource.strip('/')
+        resource = "%s/%s" % (
+            self.resource.strip('/'),
+            self.output_format.lower(),
+        )
         return "http://%(domain)s/%(resource)s?%%s" % locals()
-
-    def geocode(self, string, exactly_one=True, return_accuracy=False,
-        bounding_box=None):
+    
+    def geocode(self, string, exactly_one=True, return_types=False,
+        bounding_box=None, region=None):
         """
         Hit the API and get the response from Google.
 
@@ -81,14 +84,11 @@ class Google(Geocoder):
         
             http://code.google.com/apis/maps/documentation/geocoding/#Viewports
         """
-        params = {'q': self.format_string % string,
-                  'output': self.output_format.lower(),
-                  }
-        if self.resource.rstrip('/').endswith('geo'):
-            # An API key is only required for the HTTP geocoder.
-            params['key'] = self.api_key
-        
         # Add parameters to URL
+        params = {
+            'address': self.format_string % string,
+            'sensor': self.sensor,
+        }
         url = self.url % urlencode(params)
         
         # If the user has submitted a bounding box for viewport biasing...
@@ -97,79 +97,37 @@ class Google(Geocoder):
             if len(bounding_box) != 2:
                 raise ValueError("You have submitted a bad bounding box.")
             # ... then tack it on the end.
-            url += "&bounds=%s,%s" % (bounding_box[0][0], bounding_box[1][0])
+            url += "&bounds=%s,%s" % (bounding_box[0][0], bounding_box[0][1])
             url += "|%s,%s" % (bounding_box[1][0], bounding_box[1][1])
+        if region:
+            url += "&region=%s" % region.lower()
         # Pass out the finished url
-        print url
-        return self.geocode_url(url, exactly_one, return_accuracy)
+        return self.geocode_url(url, exactly_one, return_types)
 
-    def geocode_url(self, url, exactly_one=True, return_accuracy=False):
+    def geocode_url(self, url, exactly_one=True, return_types=False):
         util.logger.debug("Fetching %s..." % url)
         page = urlopen(url)
-
         dispatch = getattr(self, 'parse_' + self.output_format)
-        return dispatch(page, exactly_one, return_accuracy)
+        return dispatch(page, exactly_one, return_types)
 
-    def parse_xml(self, page, exactly_one=True, return_accuracy=False):
-        """Parse a location name, latitude, and longitude from an XML response.
-        """
-        if not isinstance(page, basestring):
-            page = util.decode_page(page)
-        try:
-            doc = xml.dom.minidom.parseString(page)
-        except ExpatError:
-            places = []
-        else:
-            places = doc.getElementsByTagName('Placemark')
-
-        if len(places) == 0:
-            # Got empty result. Parse out the status code and raise an error if necessary.
-            status = doc.getElementsByTagName("Status")
-            status_code = int(util.get_first_text(status[0], 'code'))
-            self.check_status_code(status_code)
-        
-        if exactly_one and len(places) != 1:
-            raise ValueError("Didn't find exactly one placemark! " \
-                             "(Found %d.)" % len(places))
-        
-        def parse_place(place, return_accuracy=False):
-            location = util.get_first_text(place, ['address', 'name']) or None
-            addressdetails = place.getElementsByTagName("AddressDetails")[0]
-            accuracy = addressdetails.attributes['Accuracy'].value
-            points = place.getElementsByTagName('Point')
-            point = points and points[0] or None
-            coords = util.get_first_text(point, 'coordinates') or None
-            if coords:
-                longitude, latitude = [float(f) for f in coords.split(',')[:2]]
-            else:
-                latitude = longitude = None
-                _, (latitude, longitude) = self.geocode(location)
-            if return_accuracy:
-                return (location, (latitude, longitude), accuracy)
-            else:
-                return (location, (latitude, longitude))
-
-        if exactly_one:
-            return parse_place(places[0], return_accuracy)
-        else:
-            return (parse_place(place, return_accuracy) for place in places)
+    def parse_xml(self, page, exactly_one=True, return_types=False):
+        raise NotImplementedError
 
     def parse_csv(self, page, exactly_one=True):
         raise NotImplementedError
 
     def parse_kml(self, page, exactly_one=True, return_accuracy=False):
-        return self.parse_xml(page, exactly_one, return_accuracy)
+        raise NotImplementedError
 
-    def parse_json(self, page, exactly_one=True):
+    def parse_json(self, page, exactly_one=True, return_types=False):
         if not isinstance(page, basestring):
             page = util.decode_page(page)
         json = simplejson.loads(page)
-        places = json.get('Placemark', [])
+        places = json.get('results', [])
 
         if len(places) == 0:
             # Got empty result. Parse out the status code and raise an error if necessary.
-            status = json.get("Status", [])
-            status_code = status["code"]
+            status = json.get("status", None)
             self.check_status_code(status_code)
 
         if exactly_one and len(places) != 1:
@@ -177,9 +135,14 @@ class Google(Geocoder):
                              "(Found %d.)" % len(places))
 
         def parse_place(place):
-            location = place.get('address')
-            longitude, latitude = place['Point']['coordinates'][:2]
-            return (location, (latitude, longitude))
+            location = place.get('formatted_address')
+            longitude, latitude = place['geometry']['location']['lng'], place['geometry']['location']['lat']
+            if return_types:
+                accuracy = place['types']
+                return (location, (latitude, longitude), accuracy)
+            else:
+                return (location, (latitude, longitude))
+
         
         if exactly_one:
             return parse_place(places[0])
@@ -187,60 +150,17 @@ class Google(Geocoder):
             return (parse_place(place) for place in places)
 
     def parse_js(self, page, exactly_one=True):
-        """This parses JavaScript returned by queries the actual Google Maps
-        interface and could thus break easily. However, this is desirable if
-        the HTTP geocoder doesn't work for addresses in your country (the
-        UK, for example).
-        """
-        if not isinstance(page, basestring):
-            page = util.decode_page(page)
+        raise NotImplementedError
 
-        LATITUDE = r"[\s,]lat:\s*(?P<latitude>-?\d+\.\d+)"
-        LONGITUDE = r"[\s,]lng:\s*(?P<longitude>-?\d+\.\d+)"
-        LOCATION = r"[\s,]laddr:\s*'(?P<location>.*?)(?<!\\)',"
-        ADDRESS = r"(?P<address>.*?)(?:(?: \(.*?@)|$)"
-        MARKER = '.*?'.join([LATITUDE, LONGITUDE, LOCATION])
-        MARKERS = r"{markers: (?P<markers>\[.*?\]),\s*polylines:"            
-
-        def parse_marker(marker):
-            latitude, longitude, location = marker
-            location = re.match(ADDRESS, location).group('address')
-            latitude, longitude = float(latitude), float(longitude)
-            return (location, (latitude, longitude))
-
-        match = re.search(MARKERS, page)
-        markers = match and match.group('markers') or ''
-        markers = re.findall(MARKER, markers)
-       
-        if exactly_one:
-            if len(markers) != 1:
-                raise ValueError("Didn't find exactly one marker! " \
-                                 "(Found %d.)" % len(markers))
-            
-            marker = markers[0]
-            return parse_marker(marker)
-        else:
-            return (parse_marker(marker) for marker in markers)
-
-    def check_status_code(self,status_code):
-        if status_code == 400:
-            raise GeocoderResultError("Bad request (Server returned status 400)")
-        elif status_code == 500:
-            raise GeocoderResultError("Unkown error (Server returned status 500)")
-        elif status_code == 601:
-            raise GQueryError("An empty lookup was performed")
-        elif status_code == 602:
+    def check_status_code(self, status_code):
+        if status_code == "ZERO_RESULTS":
             raise GQueryError("No corresponding geographic location could be found for the specified location, possibly because the address is relatively new, or because it may be incorrect.")
-        elif status_code == 603:
-            raise GQueryError("The geocode for the given location could be returned due to legal or contractual reasons")
-        elif status_code == 610:
-            raise GBadKeyError("The api_key is either invalid or does not match the domain for which it was given.")
-        elif status_code == 620:
+        elif status_code == "REQUEST_DENIED":
+            raise GQueryError("Your request was denied, generally because of lack of a sensor parameter.")
+        elif status_code == "INVALID_REQUEST":
+            raise GQueryError("You request did not include an address or latlng.")
+        elif status_code == "OVER_QUERY_LIMIT":
             raise GTooManyQueriesError("The given key has gone over the requests limit in the 24 hour period or has submitted too many requests in too short a period of time.")
-
-
-class GBadKeyError(GeocoderError):
-    pass
 
 
 class GQueryError(GeocoderResultError):
