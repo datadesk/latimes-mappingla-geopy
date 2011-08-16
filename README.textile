@@ -37,6 +37,7 @@ You can use the new optional keyword argument, 'return_types' so see how precise
 [(u'202 W 1st St, Los Angeles, CA 90731, USA',
   (33.7432855, -118.2814378),
   [u'street_address'])]</code></pre>
+
 A complete list of address types can be found "here":http://code.google.com/apis/maps/documentation/geocoding/#Types.
 
 So, let's say we know the general area to look, but don't have a zipcode to search with. How could we zero in on the right address? Try adding a viewport to ask Google to limit results to a particular extent. The viewport is two things, the southeast and northwest corners (y,x) of a bounding box surrounding the area in decimal degrees. You can read more about viewport biasing "here":http://code.google.com/apis/maps/documentation/geocoding/#Viewports.
