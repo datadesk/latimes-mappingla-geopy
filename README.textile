@@ -15,7 +15,7 @@ h2. Features
 * No longer requires an API key
 * An option to return the address types of results, "as defined by Google":http://code.google.com/apis/maps/documentation/geocoding/#Types.
 * An option to utilize Google's "viewport biasing":http://code.google.com/apis/maps/documentation/geocoding/#Viewports system that looks for results in a frame you provide (i.e. The San Fernando Valley) 
-* An option to bias realizes to a particular region of the world, "according to Google's standards":http://code.google.com/apis/maps/documentation/geocoding/#RegionCodes.
+* An option to bias results to a particular region of the world, "according to Google's standards":http://code.google.com/apis/maps/documentation/geocoding/#RegionCodes.
 
 h2. How it works
 
