@@ -1,4 +1,4 @@
-h1. This library is no longer supported and probably should not be used. If you would like to access Google's version 3 geocoder with Python, try "python-googlegeocoder":https://github.com/datadesk/python-googlegeocoder.
+h1. This library is no longer supported and probably should not be used. If you would like to access Google's v3 geocoder with Python, try "python-googlegeocoder":https://github.com/datadesk/python-googlegeocoder.
 
 <pre><code>_____/\\\\\\\\\\\\___/\\\\\\\\\\\\\\\________/\\\\\________/\\\\\\\\\\\\\_____/\\\________/\\\_        
  ___/\\\//////////___\/\\\///////////_______/\\\///\\\_____\/\\\/////////\\\__\///\\\____/\\\/__       
